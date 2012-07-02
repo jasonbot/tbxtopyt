@@ -1,6 +1,6 @@
 """Type library collection pytexportutils"""
 __version__ = '10.1'
-__all__ = ['esriSystem', 'esriGeoprocessing']
+__all__ = ['ArcGISVersion', 'esriSystem', 'esriSystemUI', 'esriGeometry', 'esriGraphicsCore', 'esriGraphicsSymbols', 'esriDisplay', 'esriGeoDatabase', 'esriGeoDatabaseDistributed', 'esriGeoDatabaseExtensions', 'esriGeoDatabasePS', 'esriDataSourcesFile', 'esriDataSourcesGDB', 'esriDataSourcesOleDB', 'esriDataSourcesRaster', 'esriDataSourcesNetCDF', 'esriDataSourcesRasterUI', 'esriCarto', 'esriGeoprocessing']
 # Required by all submodules, if these get in a bad state the C modules will crash.
 _IIDMap = {}
 _CLSIDMap = {}
@@ -65,4 +65,5 @@ def interfaces_supported(interface_object):
                   if interface_object.supports(iid)]
 
 from .esriSystem import *
+from .esriGeoDatabase import *
 from .esriGeoprocessing import *
