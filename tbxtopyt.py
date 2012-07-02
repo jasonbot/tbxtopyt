@@ -23,7 +23,7 @@ def fakefile(filename, args=None):
     oldargv = sys.argv[:]
     newdir = os.path.dirname(filename)
     sys.path = oldpath + [newdir]
-    sys.argv = [filename]
+    sys.argv = [filename] + map(get_value_as_text, args or [])
     oldcwd = os.getcwdu()
     os.chdir(newdir)
 
@@ -42,6 +42,9 @@ def get_value_as_text(parameter_object):
     if not isinstance(val, basestring):
         val = str(val)
     return val
+
+def set_parameter_as_text(params, index, val):
+    params[index].value = val
 """
 
 FUNCTION_REMAPPINGS = (
@@ -50,6 +53,7 @@ FUNCTION_REMAPPINGS = (
     ('AddError', 'messages.AddErrorMessage({})'),
     ('AddIDMessage', 'messages.AddIDMessage({})'),
     ('GetParameterAsText', 'get_value_as_text(parameters[{}])'),
+    ('SetParameterAsText', 'set_parameter_as_text(parameters, {})'),
     ('GetParameter', 'parameters[{}]')
 )
 
@@ -120,6 +124,7 @@ class Tool(object):
         except:
             pass
         yield "    def getParameterInfo(self):"
+        index_dict = {parameter.Name.lower(): idx for idx, parameter in enumerate(self._parameters)}
         for idx, parameter in enumerate(self._parameters):
             yield "        # {}".format(parameter.Name.encode("utf-8"))
             yield "        param_{} = arcpy.Parameter()".format(idx + 1)
@@ -137,6 +142,43 @@ class Tool(object):
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
             else:
                 yield "        param_{}.dataType = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
+            yield "        param_{}.parameterType = {}".format(idx + 1, 
+                                                               repr(pytexportutils.esriGPParameterType.valueFor(parameter.ParameterType)
+                                                                                        [len('esriGPParameterType'):]))
+            # default value
+            try:
+                value = parameter.Value.GetAsText()
+                if value:
+                    yield "        param_{}.value = {}".format(idx + 1, repr(value))
+            except:
+                pass
+
+            # .filter.list
+            try:
+                cvd = pytexportutils.IGPCodedValueDomain(parameter.Domain)
+                cvd_list = [cvd.Value[domainidx].GetAsText() for domainidx in xrange(cvd.CodeCount)]
+                yield "        param_{}.filter.list = {}".format(idx + 1, repr(cvd_list))
+            except:
+                pass
+
+            # .parameterDependencies
+            try:
+                deps = parameter.ParameterDependencies
+                keep_going = True
+                dep_list = []
+                try:
+                    while keep_going:
+                        dep_list.append(index_dict.get(deps.Next().lower(), 0))
+                        if not dep_list[-1]:
+                            keep_going = False
+                            dep_list = dep_list[:-1]
+                except:
+                    pass
+                if dep_list:
+                    yield "        param_{}.parameterDependencies = {}".format(idx + 1, repr(dep_list))
+            except Exception as e:
+                yield "        # DEPENDENCIES ERROR {}".format(e)
+                pass
             yield ""
         yield "        return [{}]".format(", ".join("param_{}".format(idx + 1) for idx in xrange(len(self._parameters))))
         yield "    def isLicensed(self):"
@@ -161,8 +203,8 @@ class Tool(object):
                     yield rearrange_source(filename, 12)
                 except:
                     pass
-        except Exception as e:
-            yield "        pass # {}".format(e)
+        except:
+            yield "        pass"
 
 class PYTToolbox(object):
     def __init__(self, tbx_name):
