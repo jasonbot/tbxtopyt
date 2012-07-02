@@ -4,6 +4,8 @@ import imp
 import os
 import re
 
+__all__ = ['export_tbx_to_pyt']
+
 mod_find = imp.find_module('pytexportutils', [os.path.abspath(os.path.dirname(__file__))])
 pytexportutils = imp.load_module('pytexportutils', *mod_find)
 
@@ -36,7 +38,7 @@ def fakefile(filename, args=None):
         sys.argv = oldargv
         os.chdir(oldcwd)
 
-def get_value_as_text(parameter_object):
+def get_parameter_as_text(parameter_object):
     val = parameter_object.value
     val = getattr(val, 'value', val)
     if not isinstance(val, basestring):
@@ -52,7 +54,7 @@ FUNCTION_REMAPPINGS = (
     ('AddWarning', 'messages.AddWarningMessage({})'),
     ('AddError', 'messages.AddErrorMessage({})'),
     ('AddIDMessage', 'messages.AddIDMessage({})'),
-    ('GetParameterAsText', 'get_value_as_text(parameters[{}])'),
+    ('GetParameterAsText', 'get_parameter_as_text(parameters[{}])'),
     ('SetParameterAsText', 'set_parameter_as_text(parameters, {})'),
     ('GetParameter', 'parameters[{}]')
 )
@@ -243,6 +245,13 @@ class PYTToolbox(object):
         for tool in self._tools:
             yield ""
             yield tool.python_code
+
+def export_tbx_to_pyt(in_tbx, out_file):
+    toolbox = PYTToolbox(in_tbx)
+    with open(out_file, 'wb') as out:
+        out.write(HEADER_SOURCE)
+        out.write('\n')
+        out.write(toolbox.python_code)
 
 if __name__ == "__main__":
     import glob
