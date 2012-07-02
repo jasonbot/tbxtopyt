@@ -19,6 +19,9 @@ import sys
 
 import arcpy
 
+# You can ignore/delete this code; these are basic utility functions to
+# streamline porting
+
 @contextlib.contextmanager:
 def fakefile(filename, args=None):
     oldpath = sys.path[:]
@@ -54,9 +57,10 @@ FUNCTION_REMAPPINGS = (
     ('AddWarning', 'messages.AddWarningMessage({})'),
     ('AddError', 'messages.AddErrorMessage({})'),
     ('AddIDMessage', 'messages.AddIDMessage({})'),
-    ('GetParameterAsText', 'get_parameter_as_text(parameters[{}])'),
+    ('GetParameterAsText', 'parameters[{}].valueAsText'),
     ('SetParameterAsText', 'set_parameter_as_text(parameters, {})'),
-    ('GetParameter', 'parameters[{}]')
+    ('GetParameter', 'parameters[{}]'),
+    ('GetArgumentCount', 'len(parameters)')
 )
 
 CALL_RE_TEMPLATE = "((?:[_a-z][_a-z0-9]* *[.] *)*{}\(([^)]*)\))"
@@ -184,7 +188,7 @@ class Tool(object):
             yield ""
         yield "        return [{}]".format(", ".join("param_{}".format(idx + 1) for idx in xrange(len(self._parameters))))
         yield "    def isLicensed(self):"
-        yield "        pass"
+        yield "        return True"
         yield "    def updateParameters(self, parameters):"
         yield "        pass"
         yield "    def updateMessages(self, parameters):"
@@ -255,6 +259,6 @@ def export_tbx_to_pyt(in_tbx, out_file):
 
 if __name__ == "__main__":
     import glob
-    for filename in glob.glob(r"c:\SupportFiles\ArcGIS\ArcToolbox\Toolboxes\Spatial*.tbx"):
+    for filename in [r'Toolboxes\My Toolboxes\OutScript.tbx']:
         print HEADER_SOURCE
         print PYTToolbox(filename).python_code.encode("ascii", "replace")
