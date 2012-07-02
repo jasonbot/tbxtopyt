@@ -7,8 +7,53 @@ import re
 mod_find = imp.find_module('pytexportutils', [os.path.abspath(os.path.dirname(__file__))])
 pytexportutils = imp.load_module('pytexportutils', *mod_find)
 
-acceptable_variablename = re.compile("^[_a-z][_a-z0-9]*$", re.IGNORECASE)
-coding_re = re.compile("coding: ([^ ]+)")
+ACCEPTABLE_VARIABLENAME = re.compile("^[_a-z][_a-z0-9]*$", re.IGNORECASE)
+CODING_RE = re.compile("coding: ([^ ]+)")
+HEADER_SOURCE = """# -*- coding: utf-8 -*-
+
+import contextlib
+import os
+import sys
+
+import arcpy
+
+@contextlib.contextmanager:
+def fakefile(filename, args=None):
+    oldpath = sys.path[:]
+    oldargv = sys.argv[:]
+    newdir = os.path.dirname(filename)
+    sys.path = oldpath + [newdir]
+    sys.argv = [filename]
+    oldcwd = os.getcwdu()
+    os.chdir(newdir)
+
+    try:
+        # Actually run
+        yield filename
+    finally:
+        # Restore old settings
+        sys.path = oldpath
+        sys.argv = oldargv
+        os.chdir(oldcwd)
+
+def get_value_as_text(parameter_object):
+    val = parameter_object.value
+    val = getattr(val, 'value', val)
+    if not isinstance(val, basestring):
+        val = str(val)
+    return val
+"""
+
+FUNCTION_REMAPPINGS = (
+    ('AddMessage', 'messages.AddMessage({})'),
+    ('AddWarning', 'messages.AddWarningMessage({})'),
+    ('AddError', 'messages.AddErrorMessage({})'),
+    ('AddIDMessage', 'messages.AddIDMessage({})'),
+    ('GetParameterAsText', 'get_value_as_text(parameters[{}])'),
+    ('GetParameter', 'parameters[{}]')
+)
+
+CALL_RE_TEMPLATE = "((?:[_a-z][_a-z0-9]* *[.] *)*{}\(([^)]*)\))"
 
 def collect_lines(fn):
     def fn_(*args, **kws):
@@ -16,13 +61,13 @@ def collect_lines(fn):
     return fn_
 
 def rearrange_source(source, indentation):
-    source = source.replace("\r\n", "\n")
+    source = source.replace("\r\n", "\n").replace("\t", "    ")
     # Guess coding?
     if '\n' in source:
         id1 = source.find('\n')
         if '\n' in source[id1+1:]:
             id1 = source.find('\n', id1 + 1)
-        match_obj = coding_re.findall(source[:id1])
+        match_obj = CODING_RE.findall(source[:id1])
         if match_obj:
             source = source.decode(match_obj[0])
         else:
@@ -30,17 +75,28 @@ def rearrange_source(source, indentation):
                 source = source.decode("utf-8")
             except:
                 pass
-    return "\n".join("{}{}".format(" " * indentation,
-                                   line.encode("utf-8"))
-                      for line in source.split("\n"))
+    src = "\n".join("{}{}".format(" " * indentation,
+                                  line.encode("utf-8"))
+                                  for line in source.split("\n"))
+    # Now apply some super mechanical translations to common parameter access routines
+    for fnname, replacement_pattern in FUNCTION_REMAPPINGS:
+        regexp = re.compile(CALL_RE_TEMPLATE.format(fnname))
+        finds = regexp.findall(src)
+        if finds:
+            for codepattern, arguments in finds:
+                src = src.replace(codepattern, replacement_pattern.format(arguments))
+    return src
 
 class Tool(object):
     def __init__(self, tool_object):
         self._tool = tool_object
+        param_list = self._tool.ParameterInfo
+        self._parameters = [pytexportutils.IGPParameter(param_list.Element[idx])
+                            for idx in xrange(param_list.Count)]
     @property
     def name(self):
         try:
-            if acceptable_variablename.match(self._tool.Name):
+            if ACCEPTABLE_VARIABLENAME.match(self._tool.Name):
                 return self._tool.Name
         except:
             pass
@@ -64,7 +120,25 @@ class Tool(object):
         except:
             pass
         yield "    def getParameterInfo(self):"
-        yield "        pass"
+        for idx, parameter in enumerate(self._parameters):
+            yield "        # {}".format(parameter.Name.encode("utf-8"))
+            yield "        param_{} = arcpy.Parameter()".format(idx + 1)
+            yield "        param_{}.name = {}".format(idx + 1, repr(parameter.Name))
+            yield "        param_{}.displayName = {}".format(idx + 1, repr(parameter.DisplayName))
+            if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
+                yield "        param_{}.dataType = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
+                yield "        param_{}.multiValue = True".format(idx + 1)
+            elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType.IID)):
+                cv = pytexportutils.IGPCompositeDataType(parameter.DataType)
+                yield "        param_{}.dataType = {}".format(idx + 1, repr(tuple(cv.DataType[x].DisplayName for x in xrange(cv.Count))))
+            elif (parameter.DataType.supports(pytexportutils.IGPValueTableType.IID)):
+                vt = pytexportutils.IGPValueTableType(parameter.DataType)
+                tablecols = [(vt.DataType[colindex].DisplayName, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
+                yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
+            else:
+                yield "        param_{}.dataType = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
+            yield ""
+        yield "        return [{}]".format(", ".join("param_{}".format(idx + 1) for idx in xrange(len(self._parameters))))
         yield "    def isLicensed(self):"
         yield "        pass"
         yield "    def updateParameters(self, parameters):"
@@ -103,7 +177,6 @@ class PYTToolbox(object):
     @property
     @collect_lines
     def python_code(self):
-        yield "# -*- coding: utf-8 -*-"
         yield "# Export of toolbox {}".format(self._toolbox.PathName.encode("utf-8"))
         yield ""
         yield "import arcpy"
@@ -132,5 +205,5 @@ class PYTToolbox(object):
 if __name__ == "__main__":
     import glob
     for filename in glob.glob(r"c:\SupportFiles\ArcGIS\ArcToolbox\Toolboxes\Spatial*.tbx"):
-        print filename
+        print HEADER_SOURCE
         print PYTToolbox(filename).python_code.encode("ascii", "replace")
