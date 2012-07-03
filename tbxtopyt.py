@@ -10,6 +10,7 @@ mod_find = imp.find_module('pytexportutils', [os.path.abspath(os.path.dirname(__
 pytexportutils = imp.load_module('pytexportutils', *mod_find)
 
 ACCEPTABLE_VARIABLENAME = re.compile("^[_a-z][_a-z0-9]*$", re.IGNORECASE)
+CALL_RE_TEMPLATE = "((?:[_a-z][_a-z0-9]* *[.] *)*{}\(([^)]*)\))"
 CODING_RE = re.compile("coding: ([^ ]+)")
 HEADER_SOURCE = """# -*- coding: utf-8 -*-
 
@@ -22,13 +23,13 @@ import arcpy
 # You can ignore/delete this code; these are basic utility functions to
 # streamline porting
 
-@contextlib.contextmanager:
-def fakefile(filename, args=None):
+@contextlib.contextmanager
+def script_run_as(filename, args=None):
     oldpath = sys.path[:]
     oldargv = sys.argv[:]
     newdir = os.path.dirname(filename)
     sys.path = oldpath + [newdir]
-    sys.argv = [filename] + map(get_value_as_text, args or [])
+    sys.argv = [filename] + [arg.valueAsText for arg in (args or [])]
     oldcwd = os.getcwdu()
     os.chdir(newdir)
 
@@ -40,13 +41,6 @@ def fakefile(filename, args=None):
         sys.path = oldpath
         sys.argv = oldargv
         os.chdir(oldcwd)
-
-def get_parameter_as_text(parameter_object):
-    val = parameter_object.value
-    val = getattr(val, 'value', val)
-    if not isinstance(val, basestring):
-        val = str(val)
-    return val
 
 def set_parameter_as_text(params, index, val):
     params[index].value = val
@@ -62,8 +56,6 @@ FUNCTION_REMAPPINGS = (
     ('GetParameter', 'parameters[{}]'),
     ('GetArgumentCount', 'len(parameters)')
 )
-
-CALL_RE_TEMPLATE = "((?:[_a-z][_a-z0-9]* *[.] *)*{}\(([^)]*)\))"
 
 def collect_lines(fn):
     def fn_(*args, **kws):
@@ -88,7 +80,7 @@ def rearrange_source(source, indentation):
     src = "\n".join("{}{}".format(" " * indentation,
                                   line.encode("utf-8"))
                                   for line in source.split("\n"))
-    # Now apply some super mechanical translations to common parameter access routines
+    # Now apply some mechanical translations to common parameter access routines
     for fnname, replacement_pattern in FUNCTION_REMAPPINGS:
         regexp = re.compile(CALL_RE_TEMPLATE.format(fnname))
         finds = regexp.findall(src)
@@ -198,14 +190,14 @@ class Tool(object):
             filename = pytexportutils.IGPScriptTool(self._tool).FileName
             if os.path.isfile(filename):
                 file_contents = open(filename, 'rb').read()
-                yield "        with fakefile({}):".format(repr(filename))
+                yield "        with script_run_as({}):".format(repr(filename))
                 yield rearrange_source(file_contents, 12)
             else:
                 yield "        # {}".format(repr(filename))
                 try:
                     # Coerce as source?
                     compile(filename, self._tool.PathName, "exec")
-                    yield "        with fakefile({}):".format(repr(self._tool.PathName))
+                    yield "        with script_run_as({}):".format(repr(self._tool.PathName))
                     yield rearrange_source(filename, 12)
                 except:
                     pass
