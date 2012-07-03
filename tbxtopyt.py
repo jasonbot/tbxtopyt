@@ -11,7 +11,7 @@ pytexportutils = imp.load_module('pytexportutils', *mod_find)
 
 ACCEPTABLE_VARIABLENAME = re.compile("^[_a-z][_a-z0-9]*$", re.IGNORECASE)
 CALL_RE_TEMPLATE = "((?:[_a-z][_a-z0-9]* *[.] *)*{}\(([^)]*)\))"
-CODING_RE = re.compile("coding: ([^ ]+)")
+CODING_RE = re.compile("coding: ([^ ]+)", re.IGNORECASE)
 HEADER_SOURCE = """# -*- coding: utf-8 -*-
 
 import contextlib
@@ -54,7 +54,8 @@ FUNCTION_REMAPPINGS = (
     ('GetParameterAsText', 'parameters[{}].valueAsText'),
     ('SetParameterAsText', 'set_parameter_as_text(parameters, {})'),
     ('GetParameter', 'parameters[{}]'),
-    ('GetArgumentCount', 'len(parameters)')
+    ('GetArgumentCount', 'len(parameters)'),
+    ('GetParameterInfo', 'parameters')
 )
 
 def collect_lines(fn):
@@ -82,7 +83,7 @@ def rearrange_source(source, indentation):
                                   for line in source.split("\n"))
     # Now apply some mechanical translations to common parameter access routines
     for fnname, replacement_pattern in FUNCTION_REMAPPINGS:
-        regexp = re.compile(CALL_RE_TEMPLATE.format(fnname))
+        regexp = re.compile(CALL_RE_TEMPLATE.format(fnname), re.IGNORECASE)
         finds = regexp.findall(src)
         if finds:
             for codepattern, arguments in finds:
@@ -108,6 +109,14 @@ class Tool(object):
     def python_code(self):
         yield "class {}(object):".format(self.name)
         yield '    """{}"""'.format(self._tool.PathName.encode("utf-8"))
+
+        try:
+            gptool = pytexportutils.IGPScriptTool2(self._tool)
+            codeblock = gptool.CodeBlock.encode("utf-8").replace("__init__(self)", "__init__(self, parameters)")
+            yield rearrange_source(codeblock, 4)
+        except:
+            pass
+
         yield "    def __init__(self):"
         try:
             yield "        self.label = {}".format(repr(self._tool.DisplayName))
@@ -120,7 +129,7 @@ class Tool(object):
         try:
             yield "        self.canRunInBackground = {}".format(not pytexportutils.IGPScriptTool2(self._tool).RunInProc)
         except:
-            pass
+            yield "        self.canRunInBackground = False"
         yield "    def getParameterInfo(self):"
         index_dict = {parameter.Name.lower(): idx for idx, parameter in enumerate(self._parameters)}
         for idx, parameter in enumerate(self._parameters):
@@ -174,17 +183,20 @@ class Tool(object):
                     pass
                 if dep_list:
                     yield "        param_{}.parameterDependencies = {}".format(idx + 1, repr(dep_list))
-            except Exception as e:
-                yield "        # DEPENDENCIES ERROR {}".format(e)
+            except:
                 pass
             yield ""
         yield "        return [{}]".format(", ".join("param_{}".format(idx + 1) for idx in xrange(len(self._parameters))))
         yield "    def isLicensed(self):"
         yield "        return True"
         yield "    def updateParameters(self, parameters):"
-        yield "        pass"
+        yield "        validator = getattr(self, 'ToolValidator', None)"
+        yield "        if validator:"
+        yield "             return validator(parameters).updateParameters()"
         yield "    def updateMessages(self, parameters):"
-        yield "        pass"
+        yield "        validator = getattr(self, 'ToolValidator', None)"
+        yield "        if validator:"
+        yield "             return validator(parameters).updateMessages()"
         yield "    def execute(self, parameters, messages):"
         try:
             filename = pytexportutils.IGPScriptTool(self._tool).FileName
@@ -251,6 +263,6 @@ def export_tbx_to_pyt(in_tbx, out_file):
 
 if __name__ == "__main__":
     import glob
-    for filename in [r'Toolboxes\My Toolboxes\OutScript.tbx']:
+    for filename in [r'C:\SupportFiles\ArcGIS\ArcToolBox\Toolboxes\Spatial Statistics Tools.tbx']: #[r'Toolboxes\My Toolboxes\OutScript.tbx']:
         print HEADER_SOURCE
         print PYTToolbox(filename).python_code.encode("ascii", "replace")
