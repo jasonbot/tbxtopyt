@@ -57,6 +57,11 @@ class CreatePYT(object):
     def isLicensed(self):
         return True
     def updateParameters(self, parameters):
+        if parameters[0].valueAsText and (not (parameters[1].valueAsText or parameters[1].altered)):
+            if os.path.isdir(os.path.dirname(parameters[0].valueAsText)):
+                newnamepart = os.path.splitext(parameters[0].valueAsText)[0]
+                newnamepart += u"_converted.pyt"
+                parameters[1].value = newnamepart
         pass
     def updateMessages(self, parameters):
         pass
