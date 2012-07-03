@@ -137,6 +137,9 @@ class Tool(object):
             yield "        param_{} = arcpy.Parameter()".format(idx + 1)
             yield "        param_{}.name = {}".format(idx + 1, repr(parameter.Name))
             yield "        param_{}.displayName = {}".format(idx + 1, repr(parameter.DisplayName))
+            yield "        param_{}.parameterType = {}".format(idx + 1, 
+                                                               repr(pytexportutils.esriGPParameterType.valueFor(parameter.ParameterType)
+                                                                                        [len('esriGPParameterType'):]))
             if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
                 yield "        param_{}.dataType = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
                 yield "        param_{}.multiValue = True".format(idx + 1)
@@ -149,9 +152,6 @@ class Tool(object):
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
             else:
                 yield "        param_{}.dataType = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
-            yield "        param_{}.parameterType = {}".format(idx + 1, 
-                                                               repr(pytexportutils.esriGPParameterType.valueFor(parameter.ParameterType)
-                                                                                        [len('esriGPParameterType'):]))
             # default value
             try:
                 value = parameter.Value.GetAsText()
@@ -263,6 +263,7 @@ def export_tbx_to_pyt(in_tbx, out_file):
 
 if __name__ == "__main__":
     import glob
-    for filename in [r'C:\SupportFiles\ArcGIS\ArcToolBox\Toolboxes\Spatial Statistics Tools.tbx']: #[r'Toolboxes\My Toolboxes\OutScript.tbx']:
+    #[r'C:\SupportFiles\ArcGIS\ArcToolBox\Toolboxes\Spatial Statistics Tools.tbx']: #[r'Toolboxes\My Toolboxes\OutScript.tbx']:
+    for filename in [os.path.join(os.path.dirname(os.path.abspath(__file__)), "dashboard.tbx")]:
         print HEADER_SOURCE
         print PYTToolbox(filename).python_code.encode("ascii", "replace")
