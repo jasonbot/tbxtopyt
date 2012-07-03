@@ -62,6 +62,12 @@ class CreatePYT(object):
                 newnamepart = os.path.splitext(parameters[0].valueAsText)[0]
                 newnamepart += u"_converted.pyt"
                 parameters[1].value = newnamepart
+            elif arcpy.env.workspace and os.path.isdir(arcpy.env.workspace):
+                newnamepart = os.path.splitext(os.path.split(parameters[0].valueAsText)[1])[0]
+                newname = os.path.join(arcpy.env.workspace, newnamepart + "_converted.pyt")
+            else:
+                newnamepart = os.path.splitext(os.path.split(parameters[0].valueAsText)[1])[0]
+                newname = os.path.join(os.getcwdu(), newnamepart + "_converted.pyt")
         pass
     def updateMessages(self, parameters):
         pass
