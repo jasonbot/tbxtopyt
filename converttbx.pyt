@@ -43,15 +43,17 @@ class CreatePYT(object):
         param_1 = arcpy.Parameter()
         param_1.name = u'Input_Toolbox'
         param_1.displayName = u'Input Toolbox'
-        param_1.dataType = u'Toolbox'
         param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.dataType = u'Toolbox'
 
         # Output_File
         param_2 = arcpy.Parameter()
         param_2.name = u'Output_File'
         param_2.displayName = u'Output File'
-        param_2.dataType = u'File'
         param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.dataType = u'File'
 
         return [param_1, param_2]
     def isLicensed(self):
