@@ -143,6 +143,10 @@ class Tool(object):
             yield "        param_{}.parameterType = {}".format(idx + 1, 
                                                                repr(pytexportutils.esriGPParameterType.valueFor(parameter.ParameterType)
                                                                                         [len('esriGPParameterType'):]))
+            yield "        param_{}.direction = '{}'".format(idx + 1, 
+                                                             "Output" if (parameter.Direction ==
+                                                                          pytexportutils.esriGPParameterDirection
+                                                                                        .esriGPParameterDirectionOutput) else "Input")
             if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
                 yield "        param_{}.dataType = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
                 yield "        param_{}.multiValue = True".format(idx + 1)
