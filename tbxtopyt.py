@@ -43,7 +43,7 @@ def script_run_as(filename, args=None):
         os.chdir(oldcwd)
 
 def set_parameter_as_text(params, index, val):
-    if (hasattr(params[index].value, 'value'):
+    if (hasattr(params[index].value, 'value')):
         params[index].value.value = val
     else:
         params[index].value = val
