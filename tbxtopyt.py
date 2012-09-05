@@ -43,7 +43,7 @@ def script_run_as(filename, args=None):
         os.chdir(oldcwd)
 
 def set_parameter_as_text(params, index, val):
-    if (hasattr(params[index].value, 'value'):
+    if (hasattr(params[index].value, 'value')):
         params[index].value.value = val
     else:
         params[index].value = val
@@ -148,17 +148,17 @@ class Tool(object):
                                                                           pytexportutils.esriGPParameterDirection
                                                                                         .esriGPParameterDirectionOutput) else "Input")
             if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
-                yield "        param_{}.dataType = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
                 yield "        param_{}.multiValue = True".format(idx + 1)
             elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType.IID)):
                 cv = pytexportutils.IGPCompositeDataType(parameter.DataType)
-                yield "        param_{}.dataType = {}".format(idx + 1, repr(tuple(cv.DataType[x].DisplayName for x in xrange(cv.Count))))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(tuple(cv.DataType[x].DisplayName for x in xrange(cv.Count))))
             elif (parameter.DataType.supports(pytexportutils.IGPValueTableType.IID)):
                 vt = pytexportutils.IGPValueTableType(parameter.DataType)
                 tablecols = [(vt.DataType[colindex].DisplayName, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
             else:
-                yield "        param_{}.dataType = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
             # default value
             try:
                 value = parameter.Value.GetAsText()
