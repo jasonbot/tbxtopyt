@@ -148,7 +148,7 @@ class Tool(object):
                                                                           pytexportutils.esriGPParameterDirection
                                                                                         .esriGPParameterDirectionOutput) else "Input")
             if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
-                yield "        param_{}.DATATYPE = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
                 yield "        param_{}.multiValue = True".format(idx + 1)
             elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType.IID)):
                 cv = pytexportutils.IGPCompositeDataType(parameter.DataType)
