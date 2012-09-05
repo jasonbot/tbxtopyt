@@ -158,7 +158,7 @@ class Tool(object):
                 tablecols = [(vt.DataType[colindex].DisplayName, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
             else:
-                yield "        param_{}.dataType = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
             # default value
             try:
                 value = parameter.Value.GetAsText()
