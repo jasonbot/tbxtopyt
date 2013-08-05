@@ -59168,7 +59168,24 @@ class ISurface(_esriGeoDatabase.ISurface):
             valueForNoData      : VARIANT
             block               : VARIANT'''
         return super(ISurface, self).QueryPixelBlock(xOrigin, yOrigin, xPixelSize, yPixelSize, Type, valueForNoData, block)
+    def get_Z(self, X, Y):
+        '''Method IFunctionalSurface.get_Z (from IFunctionalSurface)
+
+           INPUTS
+            X                   : double
+            Y                   : double
+
+           OUTPUT
+            Z                   : double*'''
+        return super(ISurface, self).get_Z(X, Y)
+    def get_Domain(self):
+        '''Method IFunctionalSurface.get_Domain (from IFunctionalSurface)
+
+           OUTPUT
+            Domain              : IPolygon**'''
+        return super(ISurface, self).get_Domain()
     CanDoCurvature = property(get_CanDoCurvature, None, None)
+    Domain = property(get_Domain, None, None)
     ZFactor = property(get_ZFactor, put_ZFactor, None)
 
 class ITinEdit2(_esriGeoDatabase.ITinEdit2):
@@ -59494,7 +59511,24 @@ class ISurfaceInternal(_esriGeoDatabase.ISurfaceInternal):
             valueForNoData      : VARIANT
             block               : VARIANT'''
         return super(ISurfaceInternal, self).QueryPixelBlock(xOrigin, yOrigin, xPixelSize, yPixelSize, Type, valueForNoData, block)
+    def get_Z(self, X, Y):
+        '''Method IFunctionalSurface.get_Z (from IFunctionalSurface)
+
+           INPUTS
+            X                   : double
+            Y                   : double
+
+           OUTPUT
+            Z                   : double*'''
+        return super(ISurfaceInternal, self).get_Z(X, Y)
+    def get_Domain(self):
+        '''Method IFunctionalSurface.get_Domain (from IFunctionalSurface)
+
+           OUTPUT
+            Domain              : IPolygon**'''
+        return super(ISurfaceInternal, self).get_Domain()
     CanDoCurvature = property(get_CanDoCurvature, None, None)
+    Domain = property(get_Domain, None, None)
     ZFactor = property(get_ZFactor, put_ZFactor, None)
 
 class ISpatialFilterCursorImpl(_esriGeoDatabase.ISpatialFilterCursorImpl):
@@ -76783,7 +76817,24 @@ class ITinSurface(_esriGeoDatabase.ITinSurface):
             valueForNoData      : VARIANT
             block               : VARIANT'''
         return super(ITinSurface, self).QueryPixelBlock(xOrigin, yOrigin, xPixelSize, yPixelSize, Type, valueForNoData, block)
+    def get_Z(self, X, Y):
+        '''Method IFunctionalSurface.get_Z (from IFunctionalSurface)
+
+           INPUTS
+            X                   : double
+            Y                   : double
+
+           OUTPUT
+            Z                   : double*'''
+        return super(ITinSurface, self).get_Z(X, Y)
+    def get_Domain(self):
+        '''Method IFunctionalSurface.get_Domain (from IFunctionalSurface)
+
+           OUTPUT
+            Domain              : IPolygon**'''
+        return super(ITinSurface, self).get_Domain()
     CanDoCurvature = property(get_CanDoCurvature, None, None)
+    Domain = property(get_Domain, None, None)
     RasterInterpolationMethod = property(get_RasterInterpolationMethod, put_RasterInterpolationMethod, None)
     SunPosition = property(get_SunPosition, put_SunPosition, None)
     ZFactor = property(get_ZFactor, put_ZFactor, None)
@@ -77289,7 +77340,24 @@ class ITinSurface2(_esriGeoDatabase.ITinSurface2):
             valueForNoData      : VARIANT
             block               : VARIANT'''
         return super(ITinSurface2, self).QueryPixelBlock(xOrigin, yOrigin, xPixelSize, yPixelSize, Type, valueForNoData, block)
+    def get_Z(self, X, Y):
+        '''Method IFunctionalSurface.get_Z (from IFunctionalSurface)
+
+           INPUTS
+            X                   : double
+            Y                   : double
+
+           OUTPUT
+            Z                   : double*'''
+        return super(ITinSurface2, self).get_Z(X, Y)
+    def get_Domain(self):
+        '''Method IFunctionalSurface.get_Domain (from IFunctionalSurface)
+
+           OUTPUT
+            Domain              : IPolygon**'''
+        return super(ITinSurface2, self).get_Domain()
     CanDoCurvature = property(get_CanDoCurvature, None, None)
+    Domain = property(get_Domain, None, None)
     RasterInterpolationMethod = property(get_RasterInterpolationMethod, put_RasterInterpolationMethod, None)
     SunPosition = property(get_SunPosition, put_SunPosition, None)
     ZFactor = property(get_ZFactor, put_ZFactor, None)
@@ -80391,7 +80459,24 @@ class ITinSurfaceInternal(_esriGeoDatabase.ITinSurfaceInternal):
             valueForNoData      : VARIANT
             block               : VARIANT'''
         return super(ITinSurfaceInternal, self).QueryPixelBlock(xOrigin, yOrigin, xPixelSize, yPixelSize, Type, valueForNoData, block)
+    def get_Z(self, X, Y):
+        '''Method IFunctionalSurface.get_Z (from IFunctionalSurface)
+
+           INPUTS
+            X                   : double
+            Y                   : double
+
+           OUTPUT
+            Z                   : double*'''
+        return super(ITinSurfaceInternal, self).get_Z(X, Y)
+    def get_Domain(self):
+        '''Method IFunctionalSurface.get_Domain (from IFunctionalSurface)
+
+           OUTPUT
+            Domain              : IPolygon**'''
+        return super(ITinSurfaceInternal, self).get_Domain()
     CanDoCurvature = property(get_CanDoCurvature, None, None)
+    Domain = property(get_Domain, None, None)
     InterpolationMethod = property(get_InterpolationMethod, put_InterpolationMethod, None)
     RasterInterpolationMethod = property(get_RasterInterpolationMethod, put_RasterInterpolationMethod, None)
     SunPosition = property(get_SunPosition, put_SunPosition, None)
