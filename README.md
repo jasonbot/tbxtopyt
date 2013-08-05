@@ -12,9 +12,10 @@ parameters of original toolbox.
 ## Instructions
 
 1. Download and unzip the .zip file or clone the repo.
-2. Open the provided converttbx.pyt inside of ArcCatalog or Catalog View.
-3. Provide the existing .tbx file as input.
-4. Examine and refine the resulting .pyt file.
+2. Build and install `pytexportutils`: `C:\Python27\ArcGIS10.2\python setup.py install`
+3. Open the provided converttbx.pyt inside of ArcCatalog or Catalog View.
+4. Provide the existing .tbx file as input.
+5. Examine and refine the resulting .pyt file.
 
  [New to Github? Get started here.](https://github.com/)
 
