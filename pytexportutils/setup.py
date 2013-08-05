@@ -1,3 +1,5 @@
+import os
+
 from distutils.core import setup, Extension
 
 import arcpy
