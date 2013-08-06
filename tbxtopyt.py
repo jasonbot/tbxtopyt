@@ -141,19 +141,19 @@ class Tool(object):
             yield "        param_{}.name = {}".format(idx + 1, repr(parameter.Name))
             yield "        param_{}.displayName = {}".format(idx + 1, repr(parameter.DisplayName))
             yield "        param_{}.parameterType = {}".format(idx + 1, 
-                                                               repr(pytexportutils.esriGPParameterType.valueFor(parameter.ParameterType)
+                                                               repr(pytexportutils.esriGPParameterType.value_for(parameter.ParameterType)
                                                                                         [len('esriGPParameterType'):]))
             yield "        param_{}.direction = '{}'".format(idx + 1, 
                                                              "Output" if (parameter.Direction ==
                                                                           pytexportutils.esriGPParameterDirection
                                                                                         .esriGPParameterDirectionOutput) else "Input")
-            if (parameter.DataType.supports(pytexportutils.IGPMultiValueType.IID)):
+            if (parameter.DataType.supports(pytexportutils.IGPMultiValueType._IID)):
                 yield "        param_{}.datatype = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
                 yield "        param_{}.multiValue = True".format(idx + 1)
-            elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType.IID)):
+            elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType._IID)):
                 cv = pytexportutils.IGPCompositeDataType(parameter.DataType)
                 yield "        param_{}.datatype = {}".format(idx + 1, repr(tuple(cv.DataType[x].DisplayName for x in xrange(cv.Count))))
-            elif (parameter.DataType.supports(pytexportutils.IGPValueTableType.IID)):
+            elif (parameter.DataType.supports(pytexportutils.IGPValueTableType._IID)):
                 vt = pytexportutils.IGPValueTableType(parameter.DataType)
                 tablecols = [(vt.DataType[colindex].DisplayName, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
@@ -230,7 +230,7 @@ class PYTToolbox(object):
         assert name, "Could not find {}".format(tbx_name)
         new_object = name.Open()
         assert new_object, "could not open toolbox"
-        assert new_object.supports(pytexportutils.IGPToolbox.IID), "{} is not a toolbox".format(tbx_name)
+        assert new_object.supports(pytexportutils.IGPToolbox._IID), "{} is not a toolbox".format(tbx_name)
         self._toolbox = pytexportutils.IGPToolbox(new_object)
         self._tools = map(Tool, iter(self._toolbox.Tools.Next, None))
     @property
