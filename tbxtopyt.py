@@ -148,17 +148,17 @@ class Tool(object):
                                                                           pytexportutils.esriGPParameterDirection
                                                                                         .esriGPParameterDirectionOutput) else "Input")
             if (parameter.DataType.supports(pytexportutils.IGPMultiValueType._IID)):
-                yield "        param_{}.datatype = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(pytexportutils.IGPMultiValueType(parameter.DataType).MemberDataType.Name))
                 yield "        param_{}.multiValue = True".format(idx + 1)
             elif (parameter.DataType.supports(pytexportutils.IGPCompositeDataType._IID)):
                 cv = pytexportutils.IGPCompositeDataType(parameter.DataType)
-                yield "        param_{}.datatype = {}".format(idx + 1, repr(tuple(cv.DataType[x].DisplayName for x in xrange(cv.Count))))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(tuple(cv.DataType[x].Name for x in xrange(cv.Count))))
             elif (parameter.DataType.supports(pytexportutils.IGPValueTableType._IID)):
                 vt = pytexportutils.IGPValueTableType(parameter.DataType)
-                tablecols = [(vt.DataType[colindex].DisplayName, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
+                tablecols = [(vt.DataType[colindex].Name, vt.DisplayName[colindex]) for colindex in xrange(vt.Count)]
                 yield "        param_{}.columns = {}".format(idx + 1, repr(tablecols))
             else:
-                yield "        param_{}.datatype = {}".format(idx + 1, repr(parameter.DataType.DisplayName))
+                yield "        param_{}.datatype = {}".format(idx + 1, repr(parameter.DataType.Name))
             # default value
             try:
                 value = parameter.Value.GetAsText()
