@@ -70,7 +70,6 @@ class CreatePYT(object):
             else:
                 newnamepart = os.path.splitext(os.path.split(parameters[0].valueAsText)[1])[0]
                 newname = os.path.join(os.getcwdu(), newnamepart + "_converted.pyt")
-        pass
     def updateMessages(self, parameters):
         pass
     def execute(self, parameters, messages):
