@@ -9,20 +9,29 @@ parameters of original toolbox.
 * Create Skeleton PYT from a TBX
 * Basic conversion from geoprocessing toolbox (.tbx) to Python toolbox (.pyt).
 
-## Instructions
+## Requirements
+
+* ArcGIS 10.1
+* Some experience editing Python code
+* Microsoft Visual Studio 2008 (to compile the C extensions yourself if you go the build route)
+
+## Instructions for Downloading (**recommended method**)
+
+1. Download the [pre-built version from ArcGIS.com](http://www.arcgis.com/home/item.html?id=83585412edd04ae48bdffea3e1f7b2e7) and continue with the steps below for usage.
+
+## Instructions for Building
 
 1. Download and unzip the .zip file or clone the repo.
-2. Build and install `pytexportutils`: `C:\Python27\ArcGIS10.2\python setup.py install`
+2. Build and install `pytexportutils`: `C:\Python27\ArcGIS10.2\python setup.py install`.
+3. Continue with the instructions for using the toolbox.
+
+## Instructions for Using (after downloading or building)
+
 3. Open the provided converttbx.pyt inside of ArcCatalog or Catalog View.
 4. Provide the existing .tbx file as input.
 5. Examine and refine the resulting .pyt file.
 
  [New to Github? Get started here.](https://github.com/)
-
-## Requirements
-
-* ArcGIS 10.1
-* Some experience editing Python code
 
 ## Resources
 
