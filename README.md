@@ -13,7 +13,7 @@ parameters of original toolbox.
 
 * ArcGIS 10.1
 * Some experience editing Python code
-* Microsoft Visual Studio 2008 (to compile the C extensions yourself if you go the build route)
+* Microsoft Visual Studio 2008 or [Microsoft Visual C++ Compiler for Python 2.7](http://www.microsoft.com/en-us/download/details.aspx?id=44266) (to compile the C extensions yourself if you go the build route)
 
 ## Instructions for Downloading (**recommended method**)
 
