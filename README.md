@@ -27,9 +27,9 @@ parameters of original toolbox.
 
 ## Instructions for Using (after downloading or building)
 
-3. Open the provided converttbx.pyt inside of ArcCatalog or Catalog View.
-4. Provide the existing .tbx file as input.
-5. Examine and refine the resulting .pyt file.
+1. Open the provided `converttbx.pyt` inside of ArcCatalog or Catalog View in ArcMap.
+2. Provide the existing .tbx file as input.
+3. Examine and refine the resulting `.pyt` file.
 
  [New to Github? Get started here.](https://github.com/)
 
