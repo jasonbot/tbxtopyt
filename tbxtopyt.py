@@ -199,11 +199,11 @@ class Tool(object):
         yield "    def updateParameters(self, parameters):"
         yield "        validator = getattr(self, 'ToolValidator', None)"
         yield "        if validator:"
-        yield "             return validator(parameters).updateParameters()"
+        yield "            return validator(parameters).updateParameters()"
         yield "    def updateMessages(self, parameters):"
         yield "        validator = getattr(self, 'ToolValidator', None)"
         yield "        if validator:"
-        yield "             return validator(parameters).updateMessages()"
+        yield "            return validator(parameters).updateMessages()"
         yield "    def execute(self, parameters, messages):"
         try:
             filename = pytexportutils.IGPScriptTool(self._tool).FileName
